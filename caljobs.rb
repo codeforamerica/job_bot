@@ -14,9 +14,12 @@ module Caljobs
   class Register
     include Capybara::DSL
     def run
+      # Terms of Agreement
       visit 'https://www.caljobs.ca.gov/register.asp?t=ind&action=&plang=E'
 
       find('#ctl00_Main_content_ucPrivacyAgreement_btnAgree').click
+
+      # Page 1 Demographics
 
       page.should have_content('Login Information')
 
@@ -66,7 +69,27 @@ module Caljobs
 
       next_button.click
 
-      save_and_open_screenshot
+      # Page 2 Full Name
+      page.should have_css('#ctl00_Main_content_pnContact')
+
+      first_name = 'Sandie'
+      last_name = 'Go'
+      fill_in('ctl00_Main_content_ucName_txtFirstName', with: first_name)
+      fill_in('ctl00_Main_content_ucName_txtLastName', with: last_name)
+
+      next_button.click
+
+      # Page 3 Address
+      page.should have_css('#ctl00_Main_content_ucAddress_pnAddressPrimary')
+
+      address_line_1 = '1234 Fake St'
+      fill_in('ctl00_Main_content_ucAddress_txtAddress1', with: address_line_1)
+      check('Use residential address')
+
+      next_button.should_not have_css('disabled')
+      next_button.click
+
+      pause
     end
 
     def pause
