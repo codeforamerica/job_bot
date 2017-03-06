@@ -23,11 +23,65 @@ module Caljobs
       username = 'job_bot_9000'
       fill_in('ctl00_Main_content_ucLogin_txtUsername', with: username)
 
+      password_field_id = 'ctl00_Main_content_ucLogin_ucPassword_txtPwd'
+
+      page.execute_script("$('##{password_field_id}').attr('onkeyup', '')")
+
       password = 'CalJobs1@'
-      fill_in('ctl00_Main_content_ucLogin_ucPassword_txtPwd', with: password)
+      fill_in(password_field_id, with: password)
+
+      expect(find('#ctl00_Main_content_ucLogin_ucPassword_txtPwd').value).to eq password
+
       fill_in('ctl00_Main_content_ucLogin_ucPassword_txtPwdConfirm', with: password)
 
+      select("What is your mother's maiden name?", from: 'ctl00_Main_content_ucLogin_ddlSecurityQuestion')
+      fill_in('ctl00_Main_content_ucLogin_txtSecurityQuestionResponse', with: 'Momma')
+
+      ssn = '1100113456'
+      fill_in('ctl00_Main_content_ucSSN_txtSSN', with: ssn)
+      fill_in('ctl00_Main_content_ucSSN_txtSSNReenter', with: ssn)
+
+      zip = '12345'
+      fill_in('ctl00_Main_content_txtZip', with: zip)
+
+      choose('ctl00_Main_content_radAuthorizedToWork_0')
+
+      email = 'fake_email_r3874@gmail.com'
+      fill_in('ctl00_Main_content_ucEmailTextBox_txtEmail', with: email)
+
+      fill_in('ctl00_Main_content_ucEmailTextBox_txtEmailConfirm', with: email)
+
+      dob = '01/01/1991'
+      fill_in('ctl00_Main_content_ucRegDemographics_txtDOB', with: dob)
+
+      choose('ctl00_Main_content_ucRegDemographics_rblGender_1')
+
+      next_button = find('#ctl00_Main_content_btnNext')
+
+      next_button.should_not have_css('disabled')
+
+      select('Yes', from: 'ctl00_Main_content_ucRegDemographics_ddlDraftStatus')
+
+      next_button.should_not have_css('disabled')
+
+      next_button.click
+
       save_and_open_screenshot
+    end
+
+    def pause
+      $stderr.write 'Press enter to continue'
+      $stdin.gets
+    end
+
+    def wait_for_ajax
+      Timeout.timeout(Capybara.default_max_wait_time) do
+        loop until finished_all_ajax_requests?
+      end
+    end
+
+    def finished_all_ajax_requests?
+      page.evaluate_script('jQuery.active').zero?
     end
   end
 end
